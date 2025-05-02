@@ -19,39 +19,6 @@
   <script>
     var DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
 
-    function scrollToBottom() {
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    function loadMessages() {
-    db.ref('messages').on('value', function(snapshot) {
-        const messages = snapshot.val();
-        const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = ''; // Nachrichtenbereich zurücksetzen
-
-        // Nachrichten anzeigen
-        for (const id in messages) {
-            const message = messages[id];
-            const messageDiv = document.createElement('div');
-
-            // Wenn die Nachricht mit (1) beginnt, als privat anzeigen
-            if (message.text.startsWith("(1)")) {
-                messageDiv.textContent = "[Privat] " + message.text.slice(3); // (1) entfernen
-            } else {
-                messageDiv.textContent = message.text;
-            }
-
-            messagesDiv.appendChild(messageDiv);
-        }
-
-        // Nach dem Laden der Nachrichten automatisch nach unten scrollen
-        scrollToBottom();
-    });
-    }
-
-
-
     function loadMessages() {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
