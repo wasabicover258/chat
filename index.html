@@ -1,58 +1,72 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat (REST)</title>
-    <style>
-        body { font-family: sans-serif; padding: 10px; }
-        #messages { white-space: pre-wrap; margin-bottom: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat (Classic)</title>
+  <style>
+    body { font-family: sans-serif; padding: 10px; }
+    #messages { white-space: pre-wrap; margin-bottom: 10px; }
+  </style>
 </head>
 <body>
-    <h1>Chat</h1>
-    <div id="messages">Nachrichten werden geladen...</div>
-    <input type="text" id="nameInput" placeholder="Name" />
-    <input type="text" id="messageInput" placeholder="Nachricht eingeben" />
-    <button onclick="sendMessage()">Senden</button>
+  <h1>Chat</h1>
+  <div id="messages">Nachrichten werden geladen...</div>
+  <input type="text" id="nameInput" placeholder="Name">
+  <input type="text" id="messageInput" placeholder="Nachricht eingeben">
+  <button onclick="sendMessage()">Senden</button>
 
-    <script>
-        const DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
+  <script>
+    var DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
 
-        async function loadMessages() {
+    function loadMessages() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", DB_URL, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
             try {
-                const res = await fetch(DB_URL);
-                const data = await res.json();
-                let text = '';
-                for (let key in data) {
-                    text += `${data[key].name}: ${data[key].text}\n`;
+              var data = JSON.parse(xhr.responseText);
+              var text = '';
+              for (var key in data) {
+                if (data[key] && data[key].name && data[key].text) {
+                  text += data[key].name + ": " + data[key].text + "\n";
                 }
-                document.getElementById('messages').textContent = text || 'Noch keine Nachrichten.';
-            } catch (err) {
-                document.getElementById('messages').textContent = 'Fehler beim Laden der Nachrichten.';
+              }
+              document.getElementById('messages').textContent = text || "Noch keine Nachrichten.";
+            } catch (e) {
+              document.getElementById('messages').textContent = "Fehler beim Verarbeiten der Nachrichten.";
             }
+          } else {
+            document.getElementById('messages').textContent = "Fehler beim Laden der Nachrichten.";
+          }
         }
+      };
+      xhr.send();
+    }
 
-        async function sendMessage() {
-            const name = document.getElementById('nameInput').value.trim() || "Gast";
-            const text = document.getElementById('messageInput').value.trim();
-            if (!text) return;
+    function sendMessage() {
+      var name = document.getElementById('nameInput').value.trim() || "Gast";
+      var text = document.getElementById('messageInput').value.trim();
+      if (!text) return;
 
-            const message = { name, text };
+      var message = JSON.stringify({ name: name, text: text });
 
-            await fetch(DB_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(message)
-            });
-
-            document.getElementById('messageInput').value = '';
-            loadMessages(); // sofort neu laden
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", DB_URL, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          document.getElementById('messageInput').value = '';
+          loadMessages();
         }
+      };
+      xhr.send(message);
+    }
 
-        // Alle 5 Sekunden neue Nachrichten holen
-        loadMessages();
-        setInterval(loadMessages, 5000);
-    </script>
+    // Nachrichten alle 5 Sekunden laden
+    loadMessages();
+    setInterval(loadMessages, 5000);
+  </script>
 </body>
 </html>
