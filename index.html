@@ -3,58 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
-    <script src="https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.0/firebase-database.js"></script>
+    <title>Chat (REST)</title>
+    <style>
+        body { font-family: sans-serif; padding: 10px; }
+        #messages { white-space: pre-wrap; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
     <h1>Chat</h1>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Nachricht eingeben">
+    <div id="messages">Nachrichten werden geladen...</div>
+    <input type="text" id="nameInput" placeholder="Name" />
+    <input type="text" id="messageInput" placeholder="Nachricht eingeben" />
     <button onclick="sendMessage()">Senden</button>
 
     <script>
-        // Firebase-Konfiguration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAzmEM4rHjMFqd44RALlMA4wH7dzHGvl8U",
-            authDomain: "chat-586a3.firebaseapp.com",
-            databaseURL: "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "chat-586a3",
-            storageBucket: "chat-586a3.firebasestorage.app",
-            messagingSenderId: "354046105665",
-            appId: "1:354046105665:web:e9731dd8e05f02abf68ec0",
-            measurementId: "G-5Q68VJFHK1"
-        };
+        const DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
 
-        // Firebase initialisieren
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // Funktion zum Laden der Nachrichten
-        function loadMessages() {
-            db.ref('messages').on('value', function(snapshot) {
-                const messages = snapshot.val();
-                const messagesDiv = document.getElementById('messages');
-                messagesDiv.innerHTML = '';
-                for (const id in messages) {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.textContent = messages[id];
-                    messagesDiv.appendChild(messageDiv);
+        async function loadMessages() {
+            try {
+                const res = await fetch(DB_URL);
+                const data = await res.json();
+                let text = '';
+                for (let key in data) {
+                    text += `${data[key].name}: ${data[key].text}\n`;
                 }
-            });
-        }
-
-        // Nachricht senden
-        function sendMessage() {
-            const message = document.getElementById('messageInput').value;
-            if (message) {
-                db.ref('messages').push(message);
-                document.getElementById('messageInput').value = ''; // Input zurücksetzen
+                document.getElementById('messages').textContent = text || 'Noch keine Nachrichten.';
+            } catch (err) {
+                document.getElementById('messages').textContent = 'Fehler beim Laden der Nachrichten.';
             }
         }
 
-        // Nachrichten laden
+        async function sendMessage() {
+            const name = document.getElementById('nameInput').value.trim() || "Gast";
+            const text = document.getElementById('messageInput').value.trim();
+            if (!text) return;
+
+            const message = { name, text };
+
+            await fetch(DB_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(message)
+            });
+
+            document.getElementById('messageInput').value = '';
+            loadMessages(); // sofort neu laden
+        }
+
+        // Alle 5 Sekunden neue Nachrichten holen
         loadMessages();
+        setInterval(loadMessages, 5000);
     </script>
 </body>
 </html>
