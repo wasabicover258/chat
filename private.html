@@ -7,12 +7,16 @@
   <style>
     body { font-family: sans-serif; padding: 20px; }
     #chat { display: none; margin-top: 20px; }
-    #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; margin-bottom: 10px; white-space: pre-wrap; }
+    #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
   </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-  <h1>Login</h1>
 
+  <h1>Login</h1>
   <input type="text" id="username" placeholder="Benutzername">
   <input type="password" id="password" placeholder="Passwort">
   <button onclick="login()">Einloggen</button>
@@ -27,7 +31,21 @@
   </div>
 
   <script>
-    const DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/"; // <== DEIN LINK HIER
+    // Firebase-Konfiguration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzmEM4rHjMFqd44RALlMA4wH7dzHGvl8U",
+      authDomain: "chat-586a3.firebaseapp.com",
+      databaseURL: "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "chat-586a3",
+      storageBucket: "chat-586a3.appspot.com",
+      messagingSenderId: "354046105665",
+      appId: "1:354046105665:web:e9731dd8e05f02abf68ec0"
+    };
+
+    // Initialisieren
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const users = {
       "user1": "pass1",
       "user2": "pass2"
@@ -44,7 +62,7 @@
         document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
         document.getElementById("chat").style.display = "block";
         loadMessages();
-        setInterval(loadMessages, 5000); // Alle 5 Sekunden aktualisieren
+        setInterval(loadMessages, 5000);
       } else {
         alert("Benutzername oder Passwort ist falsch.");
       }
@@ -61,47 +79,35 @@
         timestamp: Date.now()
       };
 
-      fetch(DB_URL, {
-        method: "POST",
-        body: JSON.stringify(message)
-      }).then(() => {
-        input.value = "";
-        loadMessages();
-      });
+      db.ref("messages").push(message);
+      input.value = "";
     }
 
     function loadMessages() {
-      fetch(DB_URL)
-        .then(res => res.json())
-        .then(data => {
-          let messages = [];
-          for (let key in data) {
-            if (data[key].user && data[key].text) {
-              messages.push({ ...data[key], key });
-            }
-          }
+      db.ref("messages").once("value", snapshot => {
+        const data = snapshot.val();
+        const msgDiv = document.getElementById("messages");
+        msgDiv.textContent = "";
 
-          // Sortieren nach Zeit
-          messages.sort((a, b) => a.timestamp - b.timestamp);
+        if (!data) {
+          msgDiv.textContent = "Noch keine Nachrichten.";
+          return;
+        }
 
-          // Nur die letzten 5 behalten
-          if (messages.length > 5) {
-            const toDelete = messages.slice(0, messages.length - 5);
-            toDelete.forEach(m => {
-              fetch("https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/" + m.key + ".json", {
-                method: "DELETE"
-              });
-            });
-            messages = messages.slice(-5);
-          }
+        let messages = Object.entries(data).map(([key, value]) => ({ key, ...value }));
+        messages.sort((a, b) => a.timestamp - b.timestamp);
 
-          // Anzeigen
-          const msgDiv = document.getElementById("messages");
-          msgDiv.textContent = "";
-          messages.forEach(msg => {
-            msgDiv.textContent += msg.user + ": " + msg.text + "\n";
-          });
+        // Maximal 5 Nachrichten
+        if (messages.length > 5) {
+          const toDelete = messages.slice(0, messages.length - 5);
+          toDelete.forEach(msg => db.ref("messages/" + msg.key).remove());
+          messages = messages.slice(-5);
+        }
+
+        messages.forEach(msg => {
+          msgDiv.textContent += `${msg.user}: ${msg.text}\n`;
         });
+      });
     }
   </script>
 </body>
