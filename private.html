@@ -3,125 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privater Chat mit Firebase</title>
+  <title>Login System</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    #chat { display: none; margin-top: 20px; }
-    #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
   </style>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-
   <h1>Login</h1>
-  
+
   <!-- Login Formular -->
   <input type="text" id="username" placeholder="Benutzername">
   <input type="password" id="password" placeholder="Passwort">
   <button onclick="login()">Einloggen</button>
 
-  <div id="welcome"></div>
-
-  <div id="chat">
-    <h2>Privater Chat</h2>
-    <div id="messages">Noch keine Nachrichten.</div>
-    <input type="text" id="messageInput" placeholder="Nachricht">
-    <button onclick="sendMessage()">Senden</button>
-  </div>
-
   <script>
     const users = {
       "user1": "pass1",
-      "user2": "pass2"
+      "user2": "pass2",
+      "user3": "pass3",
+      "user4": "pass4"
     };
-
-    let currentUser = null;
-    let messages = [];
 
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
 
       if (users[username] && users[username] === password) {
-        currentUser = username;
-        document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
-        document.getElementById("chat").style.display = "block";
+        // Weiterleitung zur Chatseite
+        window.location.href = "chat.html?user=" + encodeURIComponent(username);
       } else {
         alert("Benutzername oder Passwort ist falsch.");
       }
     }
-
-    // Firebase-Konfiguration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAzmEM4rHjMFqd44RALlMA4wH7dzHGvl8U",
-      authDomain: "chat-586a3.firebaseapp.com",
-      databaseURL: "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "chat-586a3",
-      storageBucket: "chat-586a3.appspot.com",
-      messagingSenderId: "354046105665",
-      appId: "1:354046105665:web:e9731dd8e05f02abf68ec0"
-    };
-
-    // Initialisieren
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    function sendMessage() {
-      const input = document.getElementById("messageInput");
-      const text = input.value.trim();
-      if (!text) return;
-
-      const message = {
-        user: currentUser,
-        text: text,
-        timestamp: Date.now()
-      };
-
-      db.ref("messages").push(message);
-      input.value = "";
-    }
-
-    function loadMessages() {
-      db.ref("messages").once("value", snapshot => {
-        const data = snapshot.val();
-        const msgDiv = document.getElementById("messages");
-        msgDiv.textContent = "";
-
-        if (!data) {
-          msgDiv.textContent = "Noch keine Nachrichten.";
-          return;
-        }
-
-        let messages = Object.entries(data).map(([key, value]) => ({ key, ...value }));
-        messages.sort((a, b) => a.timestamp - b.timestamp);
-
-        if (messages.length > 5) {
-          const toDelete = messages.slice(0, messages.length - 5);
-          toDelete.forEach(msg => db.ref("messages/" + msg.key).remove());
-          messages = messages.slice(-5);
-        }
-
-        messages.forEach(msg => {
-          msgDiv.textContent += `${msg.user}: ${msg.text}\n`;
-        });
-      });
-    }
-
-    // Prüfen, ob jemand eingeloggt ist, dann Nachrichten laden
-    function checkLoginAndStartChat() {
-      if (currentUser) {
-        loadMessages();
-        setInterval(loadMessages, 5000);
-      } else {
-        setTimeout(checkLoginAndStartChat, 500);
-      }
-    }
-
-    // Startet direkt nach dem Laden der Seite
-    checkLoginAndStartChat();
   </script>
 </body>
 </html>
