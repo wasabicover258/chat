@@ -10,7 +10,7 @@
     #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
   </style>
 
-  <!-- Firebase SDKs -->
+  <!-- Nur die Firebase Database SDK (kein Auth, kein Analytics, kein Overhead) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -31,21 +31,7 @@
   </div>
 
   <script>
-    // Firebase-Konfiguration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAzmEM4rHjMFqd44RALlMA4wH7dzHGvl8U",
-      authDomain: "chat-586a3.firebaseapp.com",
-      databaseURL: "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "chat-586a3",
-      storageBucket: "chat-586a3.appspot.com",
-      messagingSenderId: "354046105665",
-      appId: "1:354046105665:web:e9731dd8e05f02abf68ec0"
-    };
-
-    // Initialisieren
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
+    // Lokaler Login, keine Firebase-Auth!
     const users = {
       "user1": "pass1",
       "user2": "pass2"
@@ -67,6 +53,20 @@
         alert("Benutzername oder Passwort ist falsch.");
       }
     }
+
+    // Firebase Initialisierung
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzmEM4rHjMFqd44RALlMA4wH7dzHGvl8U",
+      authDomain: "chat-586a3.firebaseapp.com",
+      databaseURL: "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "chat-586a3",
+      storageBucket: "chat-586a3.appspot.com",
+      messagingSenderId: "354046105665",
+      appId: "1:354046105665:web:e9731dd8e05f02abf68ec0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
     function sendMessage() {
       const input = document.getElementById("messageInput");
@@ -97,7 +97,6 @@
         let messages = Object.entries(data).map(([key, value]) => ({ key, ...value }));
         messages.sort((a, b) => a.timestamp - b.timestamp);
 
-        // Maximal 5 Nachrichten
         if (messages.length > 5) {
           const toDelete = messages.slice(0, messages.length - 5);
           toDelete.forEach(msg => db.ref("messages/" + msg.key).remove());
