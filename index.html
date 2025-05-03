@@ -15,6 +15,10 @@
   <div id="login">
     <label for="username">Benutzername: </label>
     <input type="text" id="username" placeholder="Dein Benutzername">
+    <br>
+    <label for="password">Passwort: </label>
+    <input type="password" id="password" placeholder="Dein Passwort">
+    <br>
     <button onclick="login()">Einloggen</button>
   </div>
 
@@ -27,6 +31,14 @@
     var DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
     const MAX_MESSAGES = 5; // Maximale Anzahl der Nachrichten
     var username = localStorage.getItem("username"); // Username aus localStorage holen
+
+    // Hier definieren wir die Benutzer und ihre Passwörter
+    const users = {
+      "benutzer1": "passwort1",
+      "benutzer2": "passwort2",
+      "benutzer3": "passwort3",
+      "benutzer4": "passwort4"
+    };
 
     // Wenn der Benutzername nicht gesetzt ist, zeige das Login
     if (!username) {
@@ -43,13 +55,22 @@
     // Einloggen
     function login() {
       var inputUsername = document.getElementById("username").value.trim();
-      if (inputUsername) {
-        username = inputUsername;
-        localStorage.setItem("username", username); // Benutzernamen im localStorage speichern
-        document.getElementById("login").style.display = "none";
-        document.getElementById("messages").style.display = "block";
-        loadMessages(); // Nachrichten laden
-        setInterval(loadMessages, 5000); // Alle 5 Sekunden Nachrichten laden
+      var inputPassword = document.getElementById("password").value.trim();
+
+      if (inputUsername && inputPassword) {
+        // Überprüfen, ob der Benutzername existiert und das Passwort korrekt ist
+        if (users[inputUsername] && users[inputUsername] === inputPassword) {
+          username = inputUsername;
+          localStorage.setItem("username", username); // Benutzernamen im localStorage speichern
+          document.getElementById("login").style.display = "none";
+          document.getElementById("messages").style.display = "block";
+          loadMessages(); // Nachrichten laden
+          setInterval(loadMessages, 5000); // Alle 5 Sekunden Nachrichten laden
+        } else {
+          alert("Benutzername oder Passwort ist falsch.");
+        }
+      } else {
+        alert("Bitte Benutzername und Passwort eingeben.");
       }
     }
 
