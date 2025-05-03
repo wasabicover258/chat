@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privater Chat</title>
+  <title>Privater Chat mit Firebase</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
     #chat { display: none; margin-top: 20px; }
@@ -13,15 +13,12 @@
 <body>
   <h1>Login</h1>
 
-  <!-- Login Formular -->
   <input type="text" id="username" placeholder="Benutzername">
   <input type="password" id="password" placeholder="Passwort">
   <button onclick="login()">Einloggen</button>
 
-  <!-- Bereich für die Willkommensnachricht -->
   <div id="welcome"></div>
 
-  <!-- Privater Chatbereich -->
   <div id="chat">
     <h2>Privater Chat</h2>
     <div id="messages">Noch keine Nachrichten.</div>
@@ -30,13 +27,13 @@
   </div>
 
   <script>
+    const DB_URL = "https://YOUR_FIREBASE_URL/messages.json"; // <== DEIN LINK HIER
     const users = {
       "user1": "pass1",
       "user2": "pass2"
     };
 
     let currentUser = null;
-    let messages = [];
 
     function login() {
       const username = document.getElementById("username").value.trim();
@@ -46,6 +43,8 @@
         currentUser = username;
         document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
         document.getElementById("chat").style.display = "block";
+        loadMessages();
+        setInterval(loadMessages, 5000); // Alle 5 Sekunden aktualisieren
       } else {
         alert("Benutzername oder Passwort ist falsch.");
       }
@@ -56,20 +55,53 @@
       const text = input.value.trim();
       if (!text) return;
 
-      messages.push({ user: currentUser, text });
+      const message = {
+        user: currentUser,
+        text: text,
+        timestamp: Date.now()
+      };
 
-      if (messages.length > 5) messages.shift(); // nur die letzten 5
-
-      input.value = "";
-      updateMessages();
+      fetch(DB_URL, {
+        method: "POST",
+        body: JSON.stringify(message)
+      }).then(() => {
+        input.value = "";
+        loadMessages();
+      });
     }
 
-    function updateMessages() {
-      const msgDiv = document.getElementById("messages");
-      msgDiv.textContent = "";
-      messages.forEach(msg => {
-        msgDiv.textContent += msg.user + ": " + msg.text + "\n";
-      });
+    function loadMessages() {
+      fetch(DB_URL)
+        .then(res => res.json())
+        .then(data => {
+          let messages = [];
+          for (let key in data) {
+            if (data[key].user && data[key].text) {
+              messages.push({ ...data[key], key });
+            }
+          }
+
+          // Sortieren nach Zeit
+          messages.sort((a, b) => a.timestamp - b.timestamp);
+
+          // Nur die letzten 5 behalten
+          if (messages.length > 5) {
+            const toDelete = messages.slice(0, messages.length - 5);
+            toDelete.forEach(m => {
+              fetch("https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json" + m.key + ".json", {
+                method: "DELETE"
+              });
+            });
+            messages = messages.slice(-5);
+          }
+
+          // Anzeigen
+          const msgDiv = document.getElementById("messages");
+          msgDiv.textContent = "";
+          messages.forEach(msg => {
+            msgDiv.textContent += msg.user + ": " + msg.text + "\n";
+          });
+        });
     }
   </script>
 </body>
