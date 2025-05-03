@@ -30,7 +30,7 @@
 
       if (users[username] && users[username] === password) {
         // Weiterleitung zur Chatseite
-        window.location.href = "chat.html?user=" + encodeURIComponent(username);
+        window.location.href = "private.html?user=" + encodeURIComponent(username);
       } else {
         alert("Benutzername oder Passwort ist falsch.");
       }
