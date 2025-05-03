@@ -3,144 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Chat</title>
+  <title>Chat Startseite</title>
   <style>
-    body { font-family: sans-serif; padding: 10px; }
-    #chatArea { display: none; }
-    #messages { white-space: pre-wrap; margin-bottom: 10px; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 40px;
+    }
+    .section {
+      text-align: center;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Login</h1>
-  <input type="text" id="username" placeholder="Benutzername">
-  <input type="password" id="password" placeholder="Passwort">
-  <button onclick="login()">Einloggen</button>
-  <button onclick="loginAsGuest()">Als Gast einloggen</button>
-
-  <div id="welcome"></div>
-
-  <div id="chatArea">
-    <h2>Chat wählen</h2>
-    <select id="chatSelector" onchange="switchChat()">
-      <option value="general">🌍 General Chat</option>
-      <option value="private" id="privateOption" style="display: none;">🔒 Privater Chat</option>
-    </select>
-
-    <h2 id="chatTitle">Chat</h2>
-    <div id="messages">Nachrichten werden geladen...</div>
-    <input type="text" id="messageInput" placeholder="Nachricht eingeben">
-    <button onclick="sendMessage()">Senden</button>
+  <div class="section">
+    <h2>Privatchats (only with Account)</h2>
+    <button onclick="location.href='private.html'">Zum privaten Chat</button>
   </div>
 
-  <script>
-    const users = {
-      user1: "pass1",
-      user2: "pass2",
-      user3: "pass3",
-      user4: "pass4"
-    };
+  <div class="section">
+    <h2>Public Chat (for members and guests)</h2>
+    <button onclick="location.href='public.html'">Zum öffentlichen Chat</button>
+  </div>
 
-    const MAX_MESSAGES = 5;
-    let currentUser = "";
-    let currentChat = "general";
-    const BASE_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app";
-
-    function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      if (users[username] === password) {
-        currentUser = username;
-        showChat();
-      } else {
-        alert("Benutzername oder Passwort ist falsch.");
-      }
-    }
-
-    function loginAsGuest() {
-      currentUser = "Gast" + Math.floor(Math.random() * 1000);
-      showChat();
-    }
-
-    function showChat() {
-      document.getElementById("welcome").textContent = `Willkommen, ${currentUser}!`;
-      document.getElementById("chatArea").style.display = "block";
-      loadMessages();
-
-      // Nur user1 und user2 dürfen den privaten Chat sehen
-      if (currentUser === "user1" || currentUser === "user2") {
-        document.getElementById("privateOption").style.display = "inline";
-      } else {
-        document.getElementById("privateOption").style.display = "none";
-      }
-    }
-
-    function getChatUrl() {
-      return `${BASE_URL}/chats/${currentChat}.json`;
-    }
-
-    function switchChat() {
-      currentChat = document.getElementById("chatSelector").value;
-      document.getElementById("chatTitle").textContent = `Chat: ${currentChat}`;
-      loadMessages();
-    }
-
-    function loadMessages() {
-      fetch(getChatUrl())
-        .then(res => res.json())
-        .then(data => {
-          if (!data) {
-            document.getElementById("messages").textContent = "Noch keine Nachrichten.";
-            return;
-          }
-
-          let messages = Object.entries(data)
-            .map(([key, val]) => ({ id: key, ...val }))
-            .sort((a, b) => a.id.localeCompare(b.id))
-            .slice(-MAX_MESSAGES);
-
-          document.getElementById("messages").textContent =
-            messages.map(m => `${m.name}: ${m.text}`).join("\n");
-        })
-        .catch(() => {
-          document.getElementById("messages").textContent = "Fehler beim Laden der Nachrichten.";
-        });
-    }
-
-    function sendMessage() {
-      const input = document.getElementById("messageInput");
-      const text = input.value.trim();
-      if (!text) return;
-
-      const message = { name: currentUser, text };
-
-      fetch(getChatUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(message)
-      }).then(() => {
-        input.value = "";
-        loadMessages();
-        cleanupMessages();
-      });
-    }
-
-    function cleanupMessages() {
-      fetch(getChatUrl())
-        .then(res => res.json())
-        .then(data => {
-          if (!data) return;
-
-          const keys = Object.keys(data);
-          if (keys.length > MAX_MESSAGES) {
-            const oldestKey = keys.sort()[0];
-            fetch(`${BASE_URL}/chats/${currentChat}/${oldestKey}.json`, { method: "DELETE" });
-          }
-        });
-    }
-
-    // Automatisches Nachladen
-    setInterval(loadMessages, 5000);
-  </script>
 </body>
 </html>
