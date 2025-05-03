@@ -17,6 +17,7 @@
   <input type="text" id="username" placeholder="Benutzername">
   <input type="password" id="password" placeholder="Passwort">
   <button onclick="login()">Einloggen</button>
+  <button onclick="loginAsGuest()">Als Gast einloggen</button>
 
   <!-- Bereich für die Willkommensnachricht -->
   <div id="welcome"></div>
@@ -67,6 +68,15 @@
         alert("Benutzername oder Passwort ist falsch.");
       }
     }
+
+    function loginAsGuest() {
+     const randomID = Math.floor(Math.random() * 100);
+     currentUser = "Gast" + randomID;
+     document.getElementById("welcome").textContent = `Willkommen, ${currentUser}!`;
+     document.getElementById("chat").style.display = "block";
+     loadMessages();
+    }
+
 
     var currentUser = "";
 
