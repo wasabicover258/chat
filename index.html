@@ -3,182 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login und Chat</title>
+  <title>Multi-Chat</title>
   <style>
     body { font-family: sans-serif; padding: 10px; }
+    #chatArea { display: none; }
     #messages { white-space: pre-wrap; margin-bottom: 10px; }
-    #chat { display: none; }
   </style>
 </head>
 <body>
+
   <h1>Login</h1>
-  
-  <!-- Login Formular -->
   <input type="text" id="username" placeholder="Benutzername">
   <input type="password" id="password" placeholder="Passwort">
   <button onclick="login()">Einloggen</button>
   <button onclick="loginAsGuest()">Als Gast einloggen</button>
 
-  <!-- Bereich für die Willkommensnachricht -->
   <div id="welcome"></div>
 
-  <!-- Chat Bereich (initial nicht sichtbar) -->
-  <div id="chat">
-    <h1>Chat</h1>
+  <div id="chatArea">
+    <h2>Chat wählen</h2>
+    <select id="chatSelector" onchange="switchChat()">
+      <option value="general">🌍 General Chat</option>
+      <option value="private" id="privateOption" style="display: none;">🔒 Privater Chat</option>
+    </select>
+
+    <h2 id="chatTitle">Chat</h2>
     <div id="messages">Nachrichten werden geladen...</div>
     <input type="text" id="messageInput" placeholder="Nachricht eingeben">
     <button onclick="sendMessage()">Senden</button>
   </div>
 
   <script>
-    // Vordefinierte Benutzer und Passwörter
     const users = {
-      "user1": "pass1",
-      "user2": "pass2",
-      "user3": "pass3",
-      "user4": "pass4"
+      user1: "pass1",
+      user2: "pass2",
+      user3: "pass3",
+      user4: "pass4"
     };
 
-    const DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
-    const MAX_MESSAGES = 5; // Maximale Anzahl der Nachrichten
+    const MAX_MESSAGES = 5;
+    let currentUser = "";
+    let currentChat = "general";
+    const BASE_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app";
 
-    // Login Funktion
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-
-      // Überprüfen, ob der Benutzername existiert und das Passwort korrekt ist
-      if (users[username] && users[username] === password) {
-        // Login erfolgreich
-        document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
-        
-        // Zeige den Chat-Bereich an
-        document.getElementById("chat").style.display = "block";
-        
-        // Nachrichten laden
-        loadMessages();
-        
-        // Den eingegebenen Namen als aktuellen Benutzer verwenden
+      if (users[username] === password) {
         currentUser = username;
-        
-        // Username im Chat einstellen
-        document.getElementById("nameInput").value = currentUser;
+        showChat();
       } else {
-        // Falls der Login fehlschlägt
         alert("Benutzername oder Passwort ist falsch.");
       }
     }
 
     function loginAsGuest() {
-     const randomID = Math.floor(Math.random() * 100);
-     currentUser = "Gast" + randomID;
-     document.getElementById("welcome").textContent = `Willkommen, ${currentUser}!`;
-     document.getElementById("chat").style.display = "block";
-     loadMessages();
+      currentUser = "Gast" + Math.floor(Math.random() * 1000);
+      showChat();
     }
 
+    function showChat() {
+      document.getElementById("welcome").textContent = `Willkommen, ${currentUser}!`;
+      document.getElementById("chatArea").style.display = "block";
+      loadMessages();
 
-    var currentUser = "";
+      // Nur user1 und user2 dürfen den privaten Chat sehen
+      if (currentUser === "user1" || currentUser === "user2") {
+        document.getElementById("privateOption").style.display = "inline";
+      } else {
+        document.getElementById("privateOption").style.display = "none";
+      }
+    }
 
-    // Funktion zum Laden der Nachrichten
+    function getChatUrl() {
+      return `${BASE_URL}/chats/${currentChat}.json`;
+    }
+
+    function switchChat() {
+      currentChat = document.getElementById("chatSelector").value;
+      document.getElementById("chatTitle").textContent = `Chat: ${currentChat}`;
+      loadMessages();
+    }
+
     function loadMessages() {
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", DB_URL, true);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            try {
-              var data = JSON.parse(xhr.responseText);
-              var text = '';
-              var messages = [];
-
-              // Nachrichten in ein Array speichern, um sie sortieren zu können
-              for (var key in data) {
-                if (data[key] && data[key].name && data[key].text) {
-                  messages.push({ id: key, name: data[key].name, text: data[key].text });
-                }
-              }
-
-              // Sortiere Nachrichten nach ID (älteste zuerst)
-              messages.sort(function(a, b) {
-                return a.id.localeCompare(b.id); // Aufsteigend nach ID sortieren
-              });
-
-              // Die letzten MAX_MESSAGES Nachrichten anzeigen (beginnend mit der ältesten)
-              var messageCount = 0;
-              for (var i = 0; i < messages.length && messageCount < MAX_MESSAGES; i++) {
-                text += messages[i].name + ": " + messages[i].text + "\n";
-                messageCount++;
-              }
-
-              // Text in den Nachrichtenbereich setzen
-              document.getElementById('messages').textContent = text || "Noch keine Nachrichten.";
-            } catch (e) {
-              document.getElementById('messages').textContent = "Fehler beim Verarbeiten der Nachrichten.";
-            }
-          } else {
-            document.getElementById('messages').textContent = "Fehler beim Laden der Nachrichten.";
+      fetch(getChatUrl())
+        .then(res => res.json())
+        .then(data => {
+          if (!data) {
+            document.getElementById("messages").textContent = "Noch keine Nachrichten.";
+            return;
           }
-        }
-      };
-      xhr.send();
+
+          let messages = Object.entries(data)
+            .map(([key, val]) => ({ id: key, ...val }))
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .slice(-MAX_MESSAGES);
+
+          document.getElementById("messages").textContent =
+            messages.map(m => `${m.name}: ${m.text}`).join("\n");
+        })
+        .catch(() => {
+          document.getElementById("messages").textContent = "Fehler beim Laden der Nachrichten.";
+        });
     }
 
-    // Nachricht senden
     function sendMessage() {
-      var name = currentUser; // Benutzernamen direkt aus der aktuellen Benutzervariable holen
-      var text = document.getElementById('messageInput').value.trim();
+      const input = document.getElementById("messageInput");
+      const text = input.value.trim();
       if (!text) return;
 
-      // Neue Nachricht in die Firebase-Datenbank senden
-      var message = JSON.stringify({ name: name, text: text });
+      const message = { name: currentUser, text };
 
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", DB_URL, true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          // Jetzt alle Nachrichten neu laden
-          loadMessages();
-          // Sobald eine neue Nachricht gesendet wurde, alte Nachrichten löschen, wenn mehr als MAX_MESSAGES vorhanden sind
-          cleanUpMessages();
-        }
-      };
-      xhr.send(message);
+      fetch(getChatUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(message)
+      }).then(() => {
+        input.value = "";
+        loadMessages();
+        cleanupMessages();
+      });
     }
 
-    // Funktion, um alte Nachrichten zu löschen, wenn mehr als MAX_MESSAGES vorhanden sind
-    function cleanUpMessages() {
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", DB_URL, true);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            try {
-              var data = JSON.parse(xhr.responseText);
-              var messageCount = 0;
-              for (var key in data) {
-                messageCount++;
-              }
-              if (messageCount > MAX_MESSAGES) {
-                // Lösche die älteste Nachricht
-                var oldestMessageKey = Object.keys(data)[0]; // Die älteste Nachricht ist die erste
-                var deleteUrl = `https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages/${oldestMessageKey}.json`;
-                
-                var deleteXhr = new XMLHttpRequest();
-                deleteXhr.open("DELETE", deleteUrl, true);
-                deleteXhr.send();
-              }
-            } catch (e) {
-              console.log("Fehler beim Löschen alter Nachrichten:", e);
-            }
+    function cleanupMessages() {
+      fetch(getChatUrl())
+        .then(res => res.json())
+        .then(data => {
+          if (!data) return;
+
+          const keys = Object.keys(data);
+          if (keys.length > MAX_MESSAGES) {
+            const oldestKey = keys.sort()[0];
+            fetch(`${BASE_URL}/chats/${currentChat}/${oldestKey}.json`, { method: "DELETE" });
           }
-        }
-      };
-      xhr.send();
+        });
     }
 
-    // Nachrichten alle 5 Sekunden laden
+    // Automatisches Nachladen
     setInterval(loadMessages, 5000);
   </script>
 </body>
