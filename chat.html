@@ -3,13 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Chat</title>
+  <title>Privater Chat mit Firebase</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
+    #chat { margin-top: 20px; }
     #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
-    input[type="text"] { width: 100%; padding: 8px; margin: 10px 0; }
-    button { padding: 8px 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #45a049; }
   </style>
 
   <!-- Firebase SDKs -->
@@ -18,11 +16,14 @@
 </head>
 <body>
 
-  <h1>Firebase Chat</h1>
+  <h1>Privater Chat</h1>
 
-  <div id="messages">Noch keine Nachrichten.</div>
-  <input type="text" id="messageInput" placeholder="Nachricht eingeben...">
-  <button onclick="sendMessage()">Senden</button>
+  <div id="chat">
+    <h2>Nachrichten</h2>
+    <div id="messages">Noch keine Nachrichten.</div>
+    <input type="text" id="messageInput" placeholder="Nachricht eingeben...">
+    <button onclick="sendMessage()">Senden</button>
+  </div>
 
   <script>
     // Firebase-Konfiguration
