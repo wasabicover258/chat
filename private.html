@@ -16,39 +16,37 @@
   <button onclick="sendMessage()">Senden</button>
 
   <script>
-    // Name aus URL holen (?name=Max)
+    // Username aus dem URL-Parameter ?user=
     function getUsernameFromURL() {
       const params = new URLSearchParams(window.location.search);
-      return params.get("name") || "Gast";
+      return params.get('user') || 'Gast';
     }
 
     const userName = getUsernameFromURL();
 
-    var DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages.json";
+    const DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages.json";
     const MAX_MESSAGES = 5;
 
     function loadMessages() {
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
             try {
-              var data = JSON.parse(xhr.responseText);
-              var text = '';
-              var messages = [];
+              const data = JSON.parse(xhr.responseText);
+              const messages = [];
 
-              for (var key in data) {
-                if (data[key] && data[key].name && data[key].text) {
+              for (let key in data) {
+                if (data[key]?.name && data[key]?.text) {
                   messages.push({ id: key, name: data[key].name, text: data[key].text });
                 }
               }
 
               messages.sort((a, b) => a.id.localeCompare(b.id));
 
-              for (var i = Math.max(0, messages.length - MAX_MESSAGES); i < messages.length; i++) {
-                text += messages[i].name + ": " + messages[i].text + "\n";
-              }
+              const limitedMessages = messages.slice(-MAX_MESSAGES);
+              const text = limitedMessages.map(msg => `${msg.name}: ${msg.text}`).join("\n");
 
               document.getElementById('messages').textContent = text || "Noch keine Nachrichten.";
             } catch (e) {
@@ -63,38 +61,38 @@
     }
 
     function sendMessage() {
-      var text = document.getElementById('messageInput').value.trim();
+      const text = document.getElementById('messageInput').value.trim();
       if (!text) return;
 
-      var message = JSON.stringify({ name: userName, text: text });
+      const message = JSON.stringify({ name: userName, text: text });
 
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.open("POST", DB_URL, true);
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           loadMessages();
           cleanUpMessages();
-          document.getElementById('messageInput').value = ''; // Eingabefeld leeren
+          document.getElementById('messageInput').value = '';
         }
       };
       xhr.send(message);
     }
 
     function cleanUpMessages() {
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           try {
-            var data = JSON.parse(xhr.responseText);
-            var keys = Object.keys(data);
+            const data = JSON.parse(xhr.responseText);
+            const keys = Object.keys(data);
             if (keys.length > MAX_MESSAGES) {
-              var sortedKeys = keys.sort();
-              var toDelete = sortedKeys.slice(0, keys.length - MAX_MESSAGES);
-              toDelete.forEach(function (key) {
-                var deleteUrl = `https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages/${key}.json`;
-                var deleteXhr = new XMLHttpRequest();
+              const sortedKeys = keys.sort();
+              const toDelete = sortedKeys.slice(0, keys.length - MAX_MESSAGES);
+              toDelete.forEach(key => {
+                const deleteUrl = `https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages/${key}.json`;
+                const deleteXhr = new XMLHttpRequest();
                 deleteXhr.open("DELETE", deleteUrl, true);
                 deleteXhr.send();
               });
