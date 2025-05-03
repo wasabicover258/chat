@@ -1,110 +1,47 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat (mit Login)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login System</title>
   <style>
-    body { font-family: sans-serif; padding: 10px; }
-    #messages { white-space: pre-wrap; margin-bottom: 10px; }
-    #userInfo { position: absolute; top: 10px; right: 10px; font-weight: bold; }
+    body { font-family: sans-serif; padding: 20px; }
+    #welcome { font-size: 20px; margin-top: 20px; }
   </style>
 </head>
 <body>
-  <div id="userInfo"></div>
+  <h1>Login</h1>
 
-  <div id="loginArea">
-    <h2>Login</h2>
-    <input type="text" id="loginUser" placeholder="Benutzername">
-    <input type="password" id="loginPass" placeholder="Passwort">
-    <button onclick="login()">Einloggen</button>
-    <button onclick="enterAsGuest()">Als Gast beitreten</button>
-  </div>
+  <!-- Login Formular -->
+  <input type="text" id="username" placeholder="Benutzername">
+  <input type="password" id="password" placeholder="Passwort">
+  <button onclick="login()">Einloggen</button>
 
-  <div id="chatArea" style="display:none;">
-    <h1>Chat</h1>
-    <div id="messages">Nachrichten werden geladen...</div>
-    <input type="text" id="messageInput" placeholder="Nachricht eingeben">
-    <button onclick="sendMessage()">Senden</button>
-  </div>
+  <!-- Bereich für die Willkommensnachricht -->
+  <div id="welcome"></div>
 
   <script>
-    const DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
+    // Vordefinierte Benutzer und Passwörter
     const users = {
-      "jus": "0019",
-      "vic": "1337",
-      "tom": "3333",
-      "nina": "4444",
-      "leo": "5555"
+      "user1": "pass1",
+      "user2": "pass2",
+      "user3": "pass3",
+      "user4": "pass4"
     };
 
-    let currentUser = "";
-
+    // Login Funktion
     function login() {
-      const user = document.getElementById('loginUser').value.trim().toLowerCase();
-      const pass = document.getElementById('loginPass').value;
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-      if (users[user] && users[user] === pass) {
-        currentUser = user;
-        startChat();
+      // Überprüfen, ob der Benutzername existiert und das Passwort korrekt ist
+      if (users[username] && users[username] === password) {
+        // Zeige die Willkommensnachricht
+        document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
       } else {
-        alert("Login fehlgeschlagen!");
+        // Falls der Login fehlschlägt
+        alert("Benutzername oder Passwort ist falsch.");
       }
-    }
-
-    function enterAsGuest() {
-      currentUser = "Gast_" + Math.floor(Math.random() * 1000);
-      startChat();
-    }
-
-    function startChat() {
-      document.getElementById('loginArea').style.display = 'none';
-      document.getElementById('chatArea').style.display = 'block';
-      document.getElementById('userInfo').textContent = "Eingeloggt als: " + currentUser;
-      loadMessages();
-      setInterval(loadMessages, 5000);
-    }
-
-    function loadMessages() {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", DB_URL, true);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          try {
-            const data = JSON.parse(xhr.responseText);
-            const entries = Object.entries(data || {});
-            const lastFive = entries.slice(-5);
-            let text = "";
-            lastFive.forEach(([_, msg]) => {
-              if (msg.name && msg.text) {
-                text += msg.name + ": " + msg.text + "\n";
-              }
-            });
-            document.getElementById('messages').textContent = text || "Noch keine Nachrichten.";
-          } catch {
-            document.getElementById('messages').textContent = "Fehler beim Verarbeiten.";
-          }
-        }
-      };
-      xhr.send();
-    }
-
-    function sendMessage() {
-      const text = document.getElementById('messageInput').value.trim();
-      if (!text) return;
-
-      const message = JSON.stringify({ name: currentUser, text: text });
-
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", DB_URL, true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          document.getElementById('messageInput').value = '';
-          loadMessages();
-        }
-      };
-      xhr.send(message);
     }
   </script>
 </body>
