@@ -42,19 +42,25 @@
     let messages = [];
 
     function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-      if (users[username] && users[username] === password) {
-        currentUser = username;
-        document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
-        document.getElementById("chat").style.display = "block";
-        loadMessages();
-        setInterval(loadMessages, 5000);
-      } else {
-        alert("Benutzername oder Passwort ist falsch.");
-      }
-    }
+  if (users[username] && users[username] === password) {
+    currentUser = username;
+    document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
+    document.getElementById("chat").style.display = "block";
+
+    // Warten, bis das DOM aktualisiert wurde
+    setTimeout(() => {
+      loadMessages();
+      setInterval(loadMessages, 5000);
+    }, 100); // 100 ms reichen meist, du kannst es bei Bedarf erhöhen
+  } else {
+    alert("Benutzername oder Passwort ist falsch.");
+  }
+}
+
+
     
     // Firebase-Konfiguration
     const firebaseConfig = {
