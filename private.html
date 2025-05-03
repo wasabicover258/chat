@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login System</title>
+  <title>Privater Chat</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    #welcome { font-size: 20px; margin-top: 20px; }
+    #chat { display: none; margin-top: 20px; }
+    #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; margin-bottom: 10px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -20,28 +21,55 @@
   <!-- Bereich für die Willkommensnachricht -->
   <div id="welcome"></div>
 
+  <!-- Privater Chatbereich -->
+  <div id="chat">
+    <h2>Privater Chat</h2>
+    <div id="messages">Noch keine Nachrichten.</div>
+    <input type="text" id="messageInput" placeholder="Nachricht">
+    <button onclick="sendMessage()">Senden</button>
+  </div>
+
   <script>
-    // Vordefinierte Benutzer und Passwörter
     const users = {
       "user1": "pass1",
-      "user2": "pass2",
-      "user3": "pass3",
-      "user4": "pass4"
+      "user2": "pass2"
     };
 
-    // Login Funktion
+    let currentUser = null;
+    let messages = [];
+
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
 
-      // Überprüfen, ob der Benutzername existiert und das Passwort korrekt ist
       if (users[username] && users[username] === password) {
-        // Zeige die Willkommensnachricht
+        currentUser = username;
         document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
+        document.getElementById("chat").style.display = "block";
       } else {
-        // Falls der Login fehlschlägt
         alert("Benutzername oder Passwort ist falsch.");
       }
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      messages.push({ user: currentUser, text });
+
+      if (messages.length > 5) messages.shift(); // nur die letzten 5
+
+      input.value = "";
+      updateMessages();
+    }
+
+    function updateMessages() {
+      const msgDiv = document.getElementById("messages");
+      msgDiv.textContent = "";
+      messages.forEach(msg => {
+        msgDiv.textContent += msg.user + ": " + msg.text + "\n";
+      });
     }
   </script>
 </body>
