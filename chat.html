@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privater Chat mit Firebase</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #chat { margin-top: 20px; }
+    #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <h1>Privater Chat</h1>
+
+  <div id="chat">
+    <div id="messages">Noch keine Nachrichten.</div>
+    <input type="text" id="messageInput" placeholder="Nachricht">
+    <button onclick="sendMessage()">Senden</button>
+  </div>
+
+  <script>
+    // Firebase-Konfiguration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzmEM4rHjMFqd44RALlMA4wH7dzHGvl8U", 
+      authDomain: "chat-586a3.firebaseapp.com", 
+      databaseURL: "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app", 
+      projectId: "chat-586a3", 
+      storageBucket: "chat-586a3.appspot.com", 
+      messagingSenderId: "354046105665", 
+      appId: "1:354046105665:web:e9731dd8e05f02abf68ec0"
+    };
+
+    // Firebase initialisieren
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Nachricht senden
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const message = {
+        text: text,
+        timestamp: Date.now()
+      };
+
+      // Nachricht in Firebase speichern
+      db.ref("messages").push(message);
+
+      input.value = ""; // Eingabefeld zurücksetzen
+    }
+
+    // Nachrichten laden
+    function loadMessages() {
+      db.ref("messages").once("value", snapshot => {
+        const data = snapshot.val();
+        const msgDiv = document.getElementById("messages");
+        msgDiv.textContent = ""; // Bestehende Nachrichten leeren
+
+        if (!data) {
+          msgDiv.textContent = "Noch keine Nachrichten.";
+          return;
+        }
+
+        // Nachrichten nach Zeitstempel sortieren
+        let messages = Object.entries(data).map(([key, value]) => ({ key, ...value }));
+        messages.sort((a, b) => a.timestamp - b.timestamp);
+
+        // Maximal 5 Nachrichten anzeigen
+        if (messages.length > 5) {
+          const toDelete = messages.slice(0, messages.length - 5);
+          toDelete.forEach(msg => db.ref("messages/" + msg.key).remove());
+          messages = messages.slice(-5);
+        }
+
+        // Nachrichten anzeigen
+        messages.forEach(msg => {
+          msgDiv.textContent += `${msg.text}\n`;
+        });
+      });
+    }
+
+    // Nachrichten alle 5 Sekunden aktualisieren
+    setInterval(loadMessages, 5000);
+
+    // Beim Laden der Seite sofort Nachrichten laden
+    loadMessages();
+  </script>
+
+</body>
+</html>
