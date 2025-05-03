@@ -17,11 +17,12 @@
   <button onclick="sendMessage()">Senden</button>
 
   <script>
-    // Neuer Pfad für private Nachrichten
-    var DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages.json";
-    const MAX_MESSAGES = 5; // Maximale Anzahl der Nachrichten
+    const urlParams = new URLSearchParams(window.location.search);
+    const userParam = urlParams.get("user") || "default";
+    const DB_PATH = `privateMessages_${userParam}`;
+    const DB_URL = `https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/${DB_PATH}.json`;
+    const MAX_MESSAGES = 5;
 
-    // Funktion zum Laden der Nachrichten
     function loadMessages() {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
@@ -61,7 +62,6 @@
       xhr.send();
     }
 
-    // Nachricht senden
     function sendMessage() {
       var name = document.getElementById('nameInput').value.trim() || "Gast";
       var text = document.getElementById('messageInput').value.trim();
@@ -81,7 +81,6 @@
       xhr.send(message);
     }
 
-    // Alte Nachrichten entfernen, wenn mehr als MAX_MESSAGES
     function cleanUpMessages() {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
@@ -92,8 +91,8 @@
               var data = JSON.parse(xhr.responseText);
               var keys = Object.keys(data);
               if (keys.length > MAX_MESSAGES) {
-                var oldestKey = keys[0]; // Ältester Eintrag
-                var deleteUrl = `https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages/${oldestKey}.json`;
+                var oldestKey = keys[0];
+                var deleteUrl = `https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/${DB_PATH}/${oldestKey}.json`;
                 var deleteXhr = new XMLHttpRequest();
                 deleteXhr.open("DELETE", deleteUrl, true);
                 deleteXhr.send();
@@ -107,7 +106,6 @@
       xhr.send();
     }
 
-    // Nachrichten regelmäßig neu laden
     loadMessages();
     setInterval(loadMessages, 5000);
   </script>
