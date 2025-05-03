@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privater Chat mit Firebase</title>
+  <title>Firebase Chat mit 5 Nachrichten</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    #chat { margin-top: 20px; }
     #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
+    input[type="text"] { width: 100%; padding: 8px; margin: 10px 0; }
+    button { padding: 8px 16px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
   </style>
 
   <!-- Firebase SDKs -->
@@ -16,13 +18,11 @@
 </head>
 <body>
 
-  <h1>Privater Chat</h1>
+  <h1>Firebase Chat</h1>
 
-  <div id="chat">
-    <div id="messages">Noch keine Nachrichten.</div>
-    <input type="text" id="messageInput" placeholder="Nachricht">
-    <button onclick="sendMessage()">Senden</button>
-  </div>
+  <div id="messages">Noch keine Nachrichten.</div>
+  <input type="text" id="messageInput" placeholder="Nachricht eingeben...">
+  <button onclick="sendMessage()">Senden</button>
 
   <script>
     // Firebase-Konfiguration
@@ -71,13 +71,13 @@
 
         // Nachrichten nach Zeitstempel sortieren
         let messages = Object.entries(data).map(([key, value]) => ({ key, ...value }));
-        messages.sort((a, b) => a.timestamp - b.timestamp);
+        messages.sort((a, b) => a.timestamp - b.timestamp); // Sortierung: älteste zuerst
 
         // Maximal 5 Nachrichten anzeigen
         if (messages.length > 5) {
-          const toDelete = messages.slice(0, messages.length - 5);
+          const toDelete = messages.slice(0, messages.length - 5); // Älteste Nachrichten zum Löschen
           toDelete.forEach(msg => db.ref("messages/" + msg.key).remove());
-          messages = messages.slice(-5);
+          messages = messages.slice(-5); // Die letzten 5 Nachrichten behalten
         }
 
         // Nachrichten anzeigen
@@ -87,11 +87,9 @@
       });
     }
 
-    // Nachrichten alle 5 Sekunden aktualisieren
-    setInterval(loadMessages, 5000);
-
-    // Beim Laden der Seite sofort Nachrichten laden
+    // Initiales Laden der Nachrichten und wiederholtes Laden alle 5 Sekunden
     loadMessages();
+    setInterval(loadMessages, 5000);
   </script>
 
 </body>
