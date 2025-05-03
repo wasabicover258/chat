@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Chat mit 5 Nachrichten</title>
+  <title>Firebase Chat</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
     #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
@@ -40,11 +40,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Nachricht senden
+    // Funktion zum Senden der Nachricht
     function sendMessage() {
       const input = document.getElementById("messageInput");
       const text = input.value.trim();
-      if (!text) return;
+      if (!text) return;  // Keine leeren Nachrichten senden
 
       const message = {
         text: text,
@@ -57,9 +57,9 @@
       input.value = ""; // Eingabefeld zurücksetzen
     }
 
-    // Nachrichten laden
+    // Funktion zum Laden der Nachrichten
     function loadMessages() {
-      db.ref("messages").once("value", snapshot => {
+      db.ref("messages").orderByChild("timestamp").limitToLast(5).once("value", snapshot => {
         const data = snapshot.val();
         const msgDiv = document.getElementById("messages");
         msgDiv.textContent = ""; // Bestehende Nachrichten leeren
@@ -69,27 +69,16 @@
           return;
         }
 
-        // Nachrichten nach Zeitstempel sortieren
-        let messages = Object.entries(data).map(([key, value]) => ({ key, ...value }));
-        messages.sort((a, b) => a.timestamp - b.timestamp); // Sortierung: älteste zuerst
-
-        // Maximal 5 Nachrichten anzeigen
-        if (messages.length > 5) {
-          const toDelete = messages.slice(0, messages.length - 5); // Älteste Nachrichten zum Löschen
-          toDelete.forEach(msg => db.ref("messages/" + msg.key).remove());
-          messages = messages.slice(-5); // Die letzten 5 Nachrichten behalten
-        }
-
         // Nachrichten anzeigen
-        messages.forEach(msg => {
+        Object.values(data).forEach(msg => {
           msgDiv.textContent += `${msg.text}\n`;
         });
       });
     }
 
-    // Initiales Laden der Nachrichten und wiederholtes Laden alle 5 Sekunden
+    // Initiales Laden der Nachrichten
     loadMessages();
-    setInterval(loadMessages, 5000);
+    setInterval(loadMessages, 5000);  // Alle 5 Sekunden Nachrichten nachladen
   </script>
 
 </body>
