@@ -27,7 +27,7 @@
   </div>
 
   <script>
-    const DB_URL = "https://YOUR_FIREBASE_URL/messages.json"; // <== DEIN LINK HIER
+    const DB_URL = "https://privatchat-12345-default-rtdb.europe-west1.firebasedatabase.app/"; // <== DEIN LINK HIER
     const users = {
       "user1": "pass1",
       "user2": "pass2"
@@ -88,7 +88,7 @@
           if (messages.length > 5) {
             const toDelete = messages.slice(0, messages.length - 5);
             toDelete.forEach(m => {
-              fetch("https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json" + m.key + ".json", {
+              fetch("https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages/" + m.key + ".json", {
                 method: "DELETE"
               });
             });
