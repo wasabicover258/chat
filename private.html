@@ -42,26 +42,18 @@
     let messages = [];
 
     function login() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-  if (users[username] && users[username] === password) {
-    currentUser = username;
-    document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
-    document.getElementById("chat").style.display = "block";
+      if (users[username] && users[username] === password) {
+        currentUser = username;
+        document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
+        document.getElementById("chat").style.display = "block";
+      } else {
+        alert("Benutzername oder Passwort ist falsch.");
+      }
+    }
 
-    // Warten, bis das DOM aktualisiert wurde
-    setTimeout(() => {
-      loadMessages();
-      setInterval(loadMessages, 5000);
-    }, 100); // 100 ms reichen meist, du kannst es bei Bedarf erhöhen
-  } else {
-    alert("Benutzername oder Passwort ist falsch.");
-  }
-}
-
-
-    
     // Firebase-Konfiguration
     const firebaseConfig = {
       apiKey: "AIzaSyAzmEM4rHjMFqd44RALlMA4wH7dzHGvl8U",
@@ -106,7 +98,6 @@
         let messages = Object.entries(data).map(([key, value]) => ({ key, ...value }));
         messages.sort((a, b) => a.timestamp - b.timestamp);
 
-        // Maximal 5 Nachrichten
         if (messages.length > 5) {
           const toDelete = messages.slice(0, messages.length - 5);
           toDelete.forEach(msg => db.ref("messages/" + msg.key).remove());
@@ -118,6 +109,19 @@
         });
       });
     }
+
+    // Prüfen, ob jemand eingeloggt ist, dann Nachrichten laden
+    function checkLoginAndStartChat() {
+      if (currentUser) {
+        loadMessages();
+        setInterval(loadMessages, 5000);
+      } else {
+        setTimeout(checkLoginAndStartChat, 500);
+      }
+    }
+
+    // Startet direkt nach dem Laden der Seite
+    checkLoginAndStartChat();
   </script>
 </body>
 </html>
