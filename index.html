@@ -3,72 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login und Chat</title>
+  <title>Chat (Classic)</title>
   <style>
     body { font-family: sans-serif; padding: 10px; }
     #messages { white-space: pre-wrap; margin-bottom: 10px; }
-    #chat { display: none; }
+    #login { margin-bottom: 20px; }
   </style>
 </head>
 <body>
-  <h1>Login</h1>
-  
-  <!-- Login Formular -->
-  <input type="text" id="username" placeholder="Benutzername">
-  <input type="password" id="password" placeholder="Passwort">
-  <button onclick="login()">Einloggen</button>
 
-  <!-- Bereich für die Willkommensnachricht -->
-  <div id="welcome"></div>
-
-  <!-- Chat Bereich (initial nicht sichtbar) -->
-  <div id="chat">
-    <h1>Chat</h1>
-    <div id="messages">Nachrichten werden geladen...</div>
-    <input type="text" id="messageInput" placeholder="Nachricht eingeben">
-    <button onclick="sendMessage()">Senden</button>
+  <div id="login">
+    <label for="username">Benutzername: </label>
+    <input type="text" id="username" placeholder="Dein Benutzername">
+    <button onclick="login()">Einloggen</button>
   </div>
 
+  <h1>Chat</h1>
+  <div id="messages">Nachrichten werden geladen...</div>
+  <input type="text" id="messageInput" placeholder="Nachricht eingeben">
+  <button onclick="sendMessage()">Senden</button>
+
   <script>
-    // Vordefinierte Benutzer und Passwörter
-    const users = {
-      "user1": "pass1",
-      "user2": "pass2",
-      "user3": "pass3",
-      "user4": "pass4"
-    };
-
-    const DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
+    var DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/messages.json";
     const MAX_MESSAGES = 5; // Maximale Anzahl der Nachrichten
+    var username = localStorage.getItem("username"); // Username aus localStorage holen
 
-    // Login Funktion
-    function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-
-      // Überprüfen, ob der Benutzername existiert und das Passwort korrekt ist
-      if (users[username] && users[username] === password) {
-        // Login erfolgreich
-        document.getElementById("welcome").textContent = `Willkommen, ${username}!`;
-        
-        // Zeige den Chat-Bereich an
-        document.getElementById("chat").style.display = "block";
-        
-        // Nachrichten laden
-        loadMessages();
-        
-        // Den eingegebenen Namen als aktuellen Benutzer verwenden
-        currentUser = username;
-        
-        // Username im Chat einstellen
-        document.getElementById("nameInput").value = currentUser;
-      } else {
-        // Falls der Login fehlschlägt
-        alert("Benutzername oder Passwort ist falsch.");
-      }
+    // Wenn der Benutzername nicht gesetzt ist, zeige das Login
+    if (!username) {
+      document.getElementById("login").style.display = "block";
+      document.getElementById("messages").style.display = "none"; // Chat ausblenden
+    } else {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("messages").style.display = "block"; // Chat anzeigen
+      document.getElementById("username").value = username; // Benutzernamen im Eingabefeld setzen
+      loadMessages(); // Nachrichten laden
+      setInterval(loadMessages, 5000); // Alle 5 Sekunden Nachrichten laden
     }
 
-    var currentUser = "";
+    // Einloggen
+    function login() {
+      var inputUsername = document.getElementById("username").value.trim();
+      if (inputUsername) {
+        username = inputUsername;
+        localStorage.setItem("username", username); // Benutzernamen im localStorage speichern
+        document.getElementById("login").style.display = "none";
+        document.getElementById("messages").style.display = "block";
+        loadMessages(); // Nachrichten laden
+        setInterval(loadMessages, 5000); // Alle 5 Sekunden Nachrichten laden
+      }
+    }
 
     // Funktion zum Laden der Nachrichten
     function loadMessages() {
@@ -115,12 +98,14 @@
 
     // Nachricht senden
     function sendMessage() {
-      var name = currentUser; // Benutzernamen direkt aus der aktuellen Benutzervariable holen
       var text = document.getElementById('messageInput').value.trim();
       if (!text) return;
 
+      // Benutzernamen aus dem Eingabefeld verwenden (falls geändert)
+      var senderName = document.getElementById('username').value.trim() || "Gast";
+
       // Neue Nachricht in die Firebase-Datenbank senden
-      var message = JSON.stringify({ name: name, text: text });
+      var message = JSON.stringify({ name: senderName, text: text });
 
       var xhr = new XMLHttpRequest();
       xhr.open("POST", DB_URL, true);
@@ -167,8 +152,6 @@
       xhr.send();
     }
 
-    // Nachrichten alle 5 Sekunden laden
-    setInterval(loadMessages, 5000);
   </script>
 </body>
 </html>
