@@ -46,15 +46,21 @@
       text-align: left;
       font-size: calc(1vw + 1vh);
     }
+    .glass-container h2 {
+      background: linear-gradient(to right, #004d00, #00ff00); /* Dunkelgrün zu Hellgrün */
+      -webkit-background-clip: text; /* Für Webkit-basierte Browser (Chrome, Safari, etc.) */
+      background-clip: text; /* Für andere Browser */
+      color: transparent; /* Macht den Text transparent, damit der Farbverlauf sichtbar wird */
+    }
   </style>
 </head>
 <body>
 
   <div class="glass-container">
     <h2>Public Chat (for members and guests)</h2>
-    <button onclick="location.href='public.html'">Zum öffentlichen Chat</button>
-    <h2>Privatchats (only with Account)</h2>
-    <button onclick="location.href='login.html'">Zum privaten Chat</button>
+    <button onclick="location.href='public.html'">enter public Chat</button>
+    <h2>Private Chat (only with Account)</h2>
+    <button onclick="location.href='login.html'">enter private Chat</button>
   </div>
 
 </body>
