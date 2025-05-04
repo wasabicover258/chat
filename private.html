@@ -5,23 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat (Private)</title>
   <style>
-    body { font-family: sans-serif; padding: 10px; }
-    #messages { white-space: pre-wrap; margin-bottom: 10px; }
+    body { 
+      font-family: sans-serif; 
+      padding: 10px; 
+
+      background: url('Images/Backround3.png') no-repeat fixed;
+    }
+    #messages { 
+      white-space: pre-wrap; 
+      margin-bottom: 10px; 
+    }
   </style>
 </head>
 <body>
-  <h1>Privater Chat</h1>
+  <h1>Private Chat</h1>
   <div id="messages">Nachrichten werden geladen...</div>
   <input type="text" id="nameInput" placeholder="Name">
-  <input type="text" id="messageInput" placeholder="Nachricht eingeben">
-  <button onclick="sendMessage()">Senden</button>
+  <input type="text" id="messageInput" placeholder="Enter message">
+  <button onclick="sendMessage()">Send</button>
 
   <script>
-    // Neuer Pfad für private Nachrichten
     var DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages.json";
-    const MAX_MESSAGES = 5; // Maximale Anzahl der Nachrichten
+    const MAX_MESSAGES = 10;
 
-    // Funktion zum Laden der Nachrichten
     function loadMessages() {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
@@ -30,7 +36,6 @@
           if (xhr.status === 200) {
             try {
               var data = JSON.parse(xhr.responseText);
-              var text = '';
               var messages = [];
 
               for (var key in data) {
@@ -43,27 +48,28 @@
                 return a.id.localeCompare(b.id);
               });
 
-              var messageCount = 0;
-              for (var i = 0; i < messages.length && messageCount < MAX_MESSAGES; i++) {
-                text += messages[i].name + ": " + messages[i].text + "\n";
-                messageCount++;
+              // Nehme die letzten MAX_MESSAGES statt der ersten
+              var lastMessages = messages.slice(-MAX_MESSAGES);
+
+              var text = '';
+              for (var i = 0; i < lastMessages.length; i++) {
+                text += lastMessages[i].name + ": " + lastMessages[i].text + "\n";
               }
 
-              document.getElementById('messages').textContent = text || "Noch keine Nachrichten.";
+              document.getElementById('messages').textContent = text || "This conversation is still empty. Why don't you start it?";
             } catch (e) {
-              document.getElementById('messages').textContent = "Fehler beim Verarbeiten der Nachrichten.";
+              document.getElementById('messages').textContent = "Error while processing messages.";
             }
           } else {
-            document.getElementById('messages').textContent = "Fehler beim Laden der Nachrichten.";
+            document.getElementById('messages').textContent = "Error while loading messages.";
           }
         }
       };
       xhr.send();
     }
 
-    // Nachricht senden
     function sendMessage() {
-      var name = document.getElementById('nameInput').value.trim() || "Gast";
+      var name = document.getElementById('nameInput').value.trim() || "Guest";
       var text = document.getElementById('messageInput').value.trim();
       if (!text) return;
 
@@ -81,7 +87,6 @@
       xhr.send(message);
     }
 
-    // Alte Nachrichten entfernen, wenn mehr als MAX_MESSAGES
     function cleanUpMessages() {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
@@ -90,16 +95,16 @@
           if (xhr.status === 200) {
             try {
               var data = JSON.parse(xhr.responseText);
-              var keys = Object.keys(data);
+              var keys = Object.keys(data).sort(); // sicherstellen: älteste zuerst
               if (keys.length > MAX_MESSAGES) {
-                var oldestKey = keys[0]; // Ältester Eintrag
+                var oldestKey = keys[0];
                 var deleteUrl = `https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages/${oldestKey}.json`;
                 var deleteXhr = new XMLHttpRequest();
                 deleteXhr.open("DELETE", deleteUrl, true);
                 deleteXhr.send();
               }
             } catch (e) {
-              console.log("Fehler beim Löschen alter Nachrichten:", e);
+              console.log("Error while cleaning chat:", e);
             }
           }
         }
@@ -107,7 +112,6 @@
       xhr.send();
     }
 
-    // Nachrichten regelmäßig neu laden
     loadMessages();
     setInterval(loadMessages, 5000);
   </script>
