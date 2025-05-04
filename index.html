@@ -5,19 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat Startseite</title>
   <style>
+    :root {
+      --button-font-size: clamp(1rem, 2vw + 1vh, 2rem);
+      --icon-size: clamp(80px, 15vw, 150px);
+      --logo-height: clamp(40px, 10vw, 100px);
+      --button-padding: clamp(10px, 3vw, 20px) clamp(20px, 6vw, 40px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: sans-serif;
+      margin: 0;
+      padding-top: clamp(150px, 20vh, 260px);
+      padding-left: 4%;
+      padding-right: 4%;
+      padding-bottom: 1%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 0;
-      padding-top: 260px;
-      padding-left: 4%;
-      padding-right: 4%;
-      padding-bottom: 1%;
-      height: 100%;
-      width: 100%;
+      min-height: 100vh;
       background: url(Images/Backround5.png), linear-gradient(to bottom, #2e3e8f, #65fafa);
       background-repeat: no-repeat;
       background-size: cover;
@@ -25,77 +35,98 @@
       background-position: center;
     }
 
-    .section {
-      text-align: center;
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      backdrop-filter: blur(10px);
+      background-color: #ffffff1a;
+      z-index: 1000;
     }
-    button {
-      margin-top: 10px;
-      padding: 5% 5%;
-      font-size: calc(2vw + 2vh);
+
+    .top-bar img.logo {
+      height: clamp(30px, 8vw, 80px);
+      max-width: 45%;
+      flex-shrink: 1;
+      object-fit: contain;
     }
+
+    .top-bar img.icon {
+      height: clamp(40px, 10vw, 100px);
+      max-width: 45%;
+      flex-shrink: 1;
+      object-fit: contain;
+    }
+
+
     .glass-container {
       background: #ffffff1a;
-      padding: 12px;
-      padding-bottom: 100px;
+      padding: 2rem;
+      padding-bottom: 4rem;
       backdrop-filter: blur(10px);
       border: 2px solid rgba(255, 255, 255, 0.3);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      text-align: left;
-      font-size: calc(2vw + 2vh);
+      font-size: 1rem;
+      width: 100%;
+      max-width: 800px;
     }
+
     .glass-container h2 {
-      background: linear-gradient(to right, #00bb00, #00ff00); /* Dunkelgrün zu Hellgrün */
-      -webkit-background-clip: text; /* Für Webkit-basierte Browser (Chrome, Safari, etc.) */
-      background-clip: text; /* Für andere Browser */
-      color: transparent; /* Macht den Text transparent, damit der Farbverlauf sichtbar wird */
+      background: linear-gradient(to right, #00bb00, #00ff00);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
       text-align: center;
+      font-size: clamp(1.5rem, 2vw + 1vh, 2.5rem);
+      margin: 2rem 0 1rem;
     }
-    .top-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      backdrop-filter: blur(10px);
-      background-color: #ffffff1a;
-      display: flex;
-      justify-content: space-between; /* verteilt die Inhalte auf der linken und rechten Seite */
-      align-items: center; /* vertikale Zentrierung */
-      padding: 10px 20px;
-      color: white;
-      z-index: 1000; /* sorgt dafür, dass die Leiste immer oben bleibt */
-    }
-    .icon {
-      width: 200px;
-      height: 150px;
-    }
+
     .button-group {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center; /* zentriert beides gemeinsam */
-      gap: 10px; /* Abstand zwischen Bild und Button */
-      margin-bottom: 20px;
+      gap: 1rem;
+      margin-bottom: 2rem;
       background-color: #3aad7583;
       border-radius: 15px;
+      padding: 1rem;
+      width: 100%;
     }
 
-    .button-icon {
-      width: 200px;
-      height: 200px;
+    .button-group img {
+      width: var(--icon-size);
+      height: auto;
     }
 
-    .button-icon2 {
-      width: 200px;
-      height: 200px;
-    }
-
-    button {
-      padding: 20px 40px;
-      font-size: 100px;
+    .button-group button {
+      font-size: var(--button-font-size);
+      padding: var(--button-padding);
       background-color: #ffffff00;
-      border-color: #50505000;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .button-group button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    @media (min-width: 600px) {
+      .button-group {
+        flex-direction: row;
+        justify-content: center;
+      }
     }
 
   </style>
@@ -103,25 +134,23 @@
 <body>
 
   <div class="top-bar">
-    <img src="Images/logo.png" alt="Logo" class="logo" style="height: 100px;">
+    <img src="Images/logo.png" alt="Logo" class="logo">
     <img src="Images/Avatar3.png" alt="Icon" class="icon">
   </div>
-  
 
   <div class="glass-container">
     <h2>Public Chat <br> (for members and guests)</h2>
     <div class="button-group">
-      <img src="Images/Chat.png" alt="icon" class="button-icon">
+      <img src="Images/Chat.png" alt="icon">
       <button onclick="location.href='public.html'">enter public Chat</button>
     </div>
-  
+
     <h2>Private Chat <br> (only with Account)</h2>
     <div class="button-group">
-      <img src="Images/MessageIcon.png" alt="icon" class="button-icon2">
+      <img src="Images/MessageIcon.png" alt="icon">
       <button onclick="location.href='login.html'">enter private Chat</button>
     </div>
   </div>
-  
 
 </body>
 </html>
