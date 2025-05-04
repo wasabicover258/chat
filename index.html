@@ -11,8 +11,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 0%;
-      padding-top: 9%;
+      margin: 0;
+      padding-top: 260px;
       padding-left: 4%;
       padding-right: 4%;
       padding-bottom: 1%;
@@ -34,8 +34,9 @@
       font-size: calc(2vw + 2vh);
     }
     .glass-container {
-      background: rgba(255, 255, 255, 0.1);
+      background: #ffffff1a;
       padding: 12px;
+      padding-bottom: 100px;
       backdrop-filter: blur(10px);
       border: 2px solid rgba(255, 255, 255, 0.3);
       display: flex;
@@ -52,16 +53,75 @@
       color: transparent; /* Macht den Text transparent, damit der Farbverlauf sichtbar wird */
       text-align: center;
     }
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      backdrop-filter: blur(10px);
+      background-color: #ffffff1a;
+      display: flex;
+      justify-content: space-between; /* verteilt die Inhalte auf der linken und rechten Seite */
+      align-items: center; /* vertikale Zentrierung */
+      padding: 10px 20px;
+      color: white;
+      z-index: 1000; /* sorgt dafür, dass die Leiste immer oben bleibt */
+    }
+    .icon {
+      width: 200px;
+      height: 150px;
+    }
+    .button-group {
+      display: flex;
+      align-items: center;
+      justify-content: center; /* zentriert beides gemeinsam */
+      gap: 10px; /* Abstand zwischen Bild und Button */
+      margin-bottom: 20px;
+      background-color: #3aad7583;
+      border-radius: 15px;
+    }
+
+    .button-icon {
+      width: 200px;
+      height: 200px;
+    }
+
+    .button-icon2 {
+      width: 200px;
+      height: 200px;
+    }
+
+    button {
+      padding: 20px 40px;
+      font-size: 100px;
+      background-color: #ffffff00;
+      border-color: #50505000;
+    }
+
   </style>
 </head>
 <body>
 
+  <div class="top-bar">
+    <img src="Images/logo.png" alt="Logo" class="logo" style="height: 100px;">
+    <img src="Images/Avatar3.png" alt="Icon" class="icon">
+  </div>
+  
+
   <div class="glass-container">
     <h2>Public Chat <br> (for members and guests)</h2>
-    <button onclick="location.href='public.html'">enter public Chat</button>
+    <div class="button-group">
+      <img src="Images/Chat.png" alt="icon" class="button-icon">
+      <button onclick="location.href='public.html'">enter public Chat</button>
+    </div>
+  
     <h2>Private Chat <br> (only with Account)</h2>
-    <button onclick="location.href='login.html'">enter private Chat</button>
+    <div class="button-group">
+      <img src="Images/MessageIcon.png" alt="icon" class="button-icon2">
+      <button onclick="location.href='login.html'">enter private Chat</button>
+    </div>
   </div>
+  
 
 </body>
 </html>
