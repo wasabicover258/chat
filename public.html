@@ -32,9 +32,9 @@
 <body>
   <h1><img src="Images/mypublic.png" alt="Chat Logo" style="height: 30px;"></h1>
   <div id="chatContainer">
-    <div id="messages">Nachrichten werden geladen...</div>
-    <input type="text" id="nameInput" placeholder="Name">
-    <input type="text" id="messageInput" placeholder="Nachricht eingeben">
+    <div id="messages">Chat is loading...</div>
+    <input type="text" id="nameInput" placeholder="name">
+    <input type="text" id="messageInput" placeholder="type message">
     <img src="Images/Send.png" alt="Senden" style="cursor: pointer; height: 30px;" onclick="sendMessage()">
   </div>
   
@@ -75,12 +75,12 @@
                 messageCount++;
               }
 
-              document.getElementById('messages').textContent = text || "Noch keine Nachrichten.";
+              document.getElementById('messages').textContent = text || "This conversation is still empty. Why don't you start it?";
             } catch (e) {
-              document.getElementById('messages').textContent = "Fehler beim Verarbeiten der Nachrichten.";
+              document.getElementById('messages').textContent = "Error while processing messages.";
             }
           } else {
-            document.getElementById('messages').textContent = "Fehler beim Laden der Nachrichten.";
+            document.getElementById('messages').textContent = "Error while loading messages.";
           }
         }
       };
@@ -89,7 +89,7 @@
 
     // Nachricht senden
     function sendMessage() {
-      var name = document.getElementById('nameInput').value.trim() || "Gast";
+      var name = document.getElementById('nameInput').value.trim() || "Guest";
       var text = document.getElementById('messageInput').value.trim();
       if (!text) return;
 
@@ -133,7 +133,7 @@
                 deleteXhr.send();
               }
             } catch (e) {
-              console.log("Fehler beim Löschen alter Nachrichten:", e);
+              console.log("Error while cleaning chat:", e);
             }
           }
         }
