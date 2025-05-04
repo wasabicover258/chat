@@ -6,10 +6,10 @@
   <title>Chat Startseite</title>
   <style>
     :root {
-      --button-font-size: clamp(1rem, 2vw + 1vh, 2rem);
-      --icon-size: clamp(40px, 8vw, 80px);
-      --logo-height: clamp(30px, 8vw, 60px);
-      --button-padding: clamp(10px, 2vw, 16px) clamp(20px, 5vw, 32px);
+      --button-font-size: clamp(0.9rem, 2.5vw, 1.8rem);
+      --icon-size: clamp(30px, 6vw, 60px);
+      --logo-height: clamp(30px, 7vw, 60px);
+      --button-padding: clamp(8px, 1.5vw, 14px) clamp(14px, 4vw, 28px);
     }
 
     * {
@@ -19,7 +19,7 @@
     body {
       font-family: sans-serif;
       margin: 0;
-      padding-top: 100px; /* Platz für festen Header */
+      padding-top: 100px;
       padding-left: 4%;
       padding-right: 4%;
       padding-bottom: 1%;
@@ -54,13 +54,12 @@
     .top-bar img.icon {
       height: var(--logo-height);
       width: auto;
-      max-width: 45%;
       object-fit: contain;
     }
 
     .glass-container {
       background: #ffffff1a;
-      padding: 2rem 1rem 4rem;
+      padding: 2rem 2rem 4rem;
       backdrop-filter: blur(10px);
       border: 2px solid rgba(255, 255, 255, 0.3);
       display: flex;
@@ -68,7 +67,7 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      max-width: 800px;
+      max-width: 1000px;
     }
 
     .glass-container h2 {
@@ -91,14 +90,15 @@
       margin-bottom: 2rem;
       background-color: #3aad7583;
       border-radius: 15px;
-      padding: 1rem;
+      padding: 1rem 2rem;
       width: 100%;
+      max-width: 600px;
     }
 
     .button-group img {
       width: var(--icon-size);
       height: auto;
-      flex-shrink: 0;
+      flex-shrink: 1;
     }
 
     .button-group button {
@@ -119,22 +119,23 @@
       transform: scale(1.05);
     }
 
-    @media (max-width: 500px) {
-      .button-group {
-        flex-wrap: wrap;
+    @media (max-width: 600px) {
+      .glass-container {
+        padding: 1rem 1rem 3rem;
       }
 
-      .top-bar {
-        padding: 0 0.5rem;
+      .button-group {
+        padding: 0.8rem 1rem;
+        gap: 0.6rem;
+      }
+
+      .button-group img {
+        width: clamp(24px, 5vw, 50px);
       }
 
       .top-bar img.logo,
       .top-bar img.icon {
-        height: clamp(20px, 6vw, 40px);
-      }
-
-      .button-group img {
-        width: clamp(30px, 6vw, 60px);
+        height: clamp(24px, 6vw, 48px);
       }
     }
   </style>
