@@ -8,21 +8,32 @@
     body { 
       font-family: sans-serif; 
       padding: 10px; 
-
+      color: #f39c00;
       background: url('Images/Backround1.png') no-repeat;
+      background-size: cover;
     }
     #messages { 
       white-space: pre-wrap; 
       margin-bottom: 10px; 
     }
+    #chatContainer {
+      background-color: rgba(0, 0, 0, 0.5); /* halbtransparentes Schwarz */
+      padding: 10px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
   </style>
 </head>
 <body>
-  <h1>Private Chat</h1>
-  <div id="messages">Nachrichten werden geladen...</div>
-  <input type="text" id="nameInput" placeholder="Name">
-  <input type="text" id="messageInput" placeholder="Enter message">
-  <button onclick="sendMessage()">Send</button>
+  <h1><img src="Images/myprivate.png" alt="Chat Logo" style="height: 30px;"></h1>
+  <div id="chatContainer">
+    <div id="messages">Chat is loading...</div>
+    <input type="text" id="nameInput" placeholder="Name">
+    <input type="text" id="messageInput" placeholder="Nachricht eingeben">
+    <img src="Images/Send.png" alt="Senden" style="cursor: pointer; height: 30px;" onclick="sendMessage()">
+  </div>
+  
 
   <script>
     var DB_URL = "https://chat-586a3-default-rtdb.europe-west1.firebasedatabase.app/privateMessages.json";
