@@ -17,16 +17,26 @@
       margin-bottom: 10px; 
     }
     #nameInput {
-      width: 50px;
+      width: 70px;
     }
+    #chatContainer {
+      background-color: rgba(59, 116, 143, 0.5); /* halbtransparentes Schwarz */
+      padding: 10px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
   </style>
 </head>
 <body>
-  <h1><img src="Images/mypublic.png" alt="Chat Logo" style="height: 30px;"></h1>
-  <div id="messages">Nachrichten werden geladen...</div>
-  <input type="text" id="nameInput" placeholder="Name">
-  <input type="text" id="messageInput" placeholder="Nachricht eingeben">
-  <img src="Images/Send.png" alt="Senden" style="cursor: pointer; height: 30px;" onclick="sendMessage()">
+  <h1><img src="Images/mypublic.png" alt="Chat Logo" style="height: 40px;"></h1>
+  <div id="chatContainer">
+    <div id="messages">Nachrichten werden geladen...</div>
+    <input type="text" id="nameInput" placeholder="Name">
+    <input type="text" id="messageInput" placeholder="Nachricht eingeben">
+    <img src="Images/Send.png" alt="Senden" style="cursor: pointer; height: 30px;" onclick="sendMessage()">
+  </div>
+  
 
 
   <script>
