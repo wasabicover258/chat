@@ -7,7 +7,6 @@
   <style>
     :root {
       --button-font-size: clamp(1rem, 2vw + 1vh, 2rem);
-      --icon-size: clamp(80px, 15vw, 150px);
       --logo-height: clamp(40px, 10vw, 100px);
       --button-padding: clamp(10px, 3vw, 20px) clamp(20px, 6vw, 40px);
     }
@@ -63,7 +62,6 @@
       object-fit: contain;
     }
 
-
     .glass-container {
       background: #ffffff1a;
       padding: 2rem;
@@ -99,11 +97,14 @@
       border-radius: 15px;
       padding: 1rem;
       width: 100%;
+      flex-wrap: wrap;
     }
 
     .button-group img {
-      width: var(--icon-size);
+      max-width: 40%;
       height: auto;
+      flex-shrink: 1;
+      object-fit: contain;
     }
 
     .button-group button {
@@ -115,6 +116,9 @@
       color: white;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s ease;
+      flex: 1;
+      min-width: 160px;
+      max-width: 60%;
     }
 
     .button-group button:hover {
@@ -127,8 +131,15 @@
         flex-direction: row;
         justify-content: center;
       }
-    }
 
+      .button-group img {
+        max-width: 30%;
+      }
+
+      .button-group button {
+        max-width: 60%;
+      }
+    }
   </style>
 </head>
 <body>
