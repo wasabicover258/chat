@@ -9,16 +9,13 @@
       font-family: sans-serif; 
       padding-left: 10px; 
       padding-bottom: 70px;
-      background: url('Images/Backround3.png') no-repeat;
-      background-size: cover;
       color: #f39c00;
+      background: url('Images/Backround3.png') no-repeat;
+      background-size: cover
     }
-    #messages {
+    #messages { 
       white-space: pre-wrap; 
       margin-bottom: 10px; 
-    }
-    #nameInput {
-      width: 70px;
     }
     #chatContainer {
       background-color: rgba(59, 116, 143, 0.5); /* halbtransparentes Schwarz */
@@ -26,11 +23,14 @@
       border-radius: 10px;
       display: inline-block;
     }
+    #nameInput {
+      width: 70px;
+    }
 
   </style>
 </head>
 <body>
-  <h1><img src="Images/mypublic.png" alt="Chat Logo" style="height: 30px;"></h1>
+  <h1><img src="Images/mypublic.png" alt="mypublic" style="height: 25px;"></h1>
   <div id="chatContainer">
     <div id="messages">Chat is loading...</div>
     <input type="text" id="nameInput" placeholder="name">
@@ -39,12 +39,10 @@
   </div>
   
 
-
   <script>
-    var DB_URL = "https://mychat-7d457-default-rtdb.europe-west1.firebasedatabase.app//publicMessages.json";
-    const MAX_MESSAGES = 20; // Maximale Anzahl der Nachrichten
+    var DB_URL = "https://mychat-7d457-default-rtdb.europe-west1.firebasedatabase.app/publicMessages.json";
+    const MAX_MESSAGES = 20;
 
-    // Funktion zum Laden der Nachrichten
     function loadMessages() {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
@@ -53,26 +51,24 @@
           if (xhr.status === 200) {
             try {
               var data = JSON.parse(xhr.responseText);
-              var text = '';
               var messages = [];
 
-              // Nachrichten in ein Array speichern, um sie sortieren zu können
               for (var key in data) {
                 if (data[key] && data[key].name && data[key].text) {
                   messages.push({ id: key, name: data[key].name, text: data[key].text });
                 }
               }
 
-              // Sortiere Nachrichten nach ID (älteste zuerst)
               messages.sort(function(a, b) {
-                return a.id.localeCompare(b.id); // Aufsteigend nach ID sortieren
+                return a.id.localeCompare(b.id);
               });
 
-              // Die letzten MAX_MESSAGES Nachrichten anzeigen
-              var messageCount = 0;
-              for (var i = 0; i < messages.length && messageCount < MAX_MESSAGES; i++) {
-                text += messages[i].name + ": " + messages[i].text + "\n";
-                messageCount++;
+              // Nehme die letzten MAX_MESSAGES statt der ersten
+              var lastMessages = messages.slice(-MAX_MESSAGES);
+
+              var text = '';
+              for (var i = 0; i < lastMessages.length; i++) {
+                text += lastMessages[i].name + ": " + lastMessages[i].text + "\n";
               }
 
               document.getElementById('messages').textContent = text || "This conversation is still empty. Why don't you start it?";
@@ -87,13 +83,11 @@
       xhr.send();
     }
 
-    // Nachricht senden
     function sendMessage() {
       var name = document.getElementById('nameInput').value.trim() || "Guest";
       var text = document.getElementById('messageInput').value.trim();
       if (!text) return;
 
-      // Neue Nachricht in die Firebase-Datenbank senden
       var message = JSON.stringify({ name: name, text: text });
 
       var xhr = new XMLHttpRequest();
@@ -101,16 +95,13 @@
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          // Jetzt alle Nachrichten neu laden
           loadMessages();
-          // Sobald eine neue Nachricht gesendet wurde, alte Nachrichten löschen, wenn mehr als MAX_MESSAGES vorhanden sind
           cleanUpMessages();
         }
       };
       xhr.send(message);
     }
 
-    // Funktion, um alte Nachrichten zu löschen, wenn mehr als MAX_MESSAGES vorhanden sind
     function cleanUpMessages() {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", DB_URL, true);
@@ -119,15 +110,10 @@
           if (xhr.status === 200) {
             try {
               var data = JSON.parse(xhr.responseText);
-              var messageCount = 0;
-              for (var key in data) {
-                messageCount++;
-              }
-              if (messageCount > MAX_MESSAGES) {
-                // Lösche die älteste Nachricht
-                var oldestMessageKey = Object.keys(data)[0]; // Die älteste Nachricht ist die erste
-                var deleteUrl = `https://mychat-7d457-default-rtdb.europe-west1.firebasedatabase.app/publicMessages/${oldestMessageKey}.json`;
-                
+              var keys = Object.keys(data).sort(); // sicherstellen: älteste zuerst
+              if (keys.length > MAX_MESSAGES) {
+                var oldestKey = keys[0];
+                var deleteUrl = `https://mychat-7d457-default-rtdb.europe-west1.firebasedatabase.app/publicMessages/${oldestKey}.json`;
                 var deleteXhr = new XMLHttpRequest();
                 deleteXhr.open("DELETE", deleteUrl, true);
                 deleteXhr.send();
@@ -141,7 +127,6 @@
       xhr.send();
     }
 
-    // Nachrichten alle 5 Sekunden laden
     loadMessages();
     setInterval(loadMessages, 5000);
   </script>
