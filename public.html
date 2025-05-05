@@ -41,7 +41,7 @@
 
 
   <script>
-    var DB_URL = "https://mychat-7d457-default-rtdb.europe-west1.firebasedatabase.app//publicmessages.json";
+    var DB_URL = "https://mychat-7d457-default-rtdb.europe-west1.firebasedatabase.app//publicMessages.json";
     const MAX_MESSAGES = 20; // Maximale Anzahl der Nachrichten
 
     // Funktion zum Laden der Nachrichten
@@ -126,7 +126,7 @@
               if (messageCount > MAX_MESSAGES) {
                 // Lösche die älteste Nachricht
                 var oldestMessageKey = Object.keys(data)[0]; // Die älteste Nachricht ist die erste
-                var deleteUrl = `https://mychat-7d457-default-rtdb.europe-west1.firebasedatabase.app/privatemessages/${oldestMessageKey}.json`;
+                var deleteUrl = `https://mychat-7d457-default-rtdb.europe-west1.firebasedatabase.app/publicMessages/${oldestMessageKey}.json`;
                 
                 var deleteXhr = new XMLHttpRequest();
                 deleteXhr.open("DELETE", deleteUrl, true);
